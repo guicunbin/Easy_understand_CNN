@@ -1,4 +1,4 @@
-# Easy_CNN_Framework
+# Easy_understand_CNN
 
 
 ### dependency
