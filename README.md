@@ -8,4 +8,4 @@
 ### usage
 > 1.    ./data/mnist/get_mnist.sh
 > 2.    cd ./test/test_utils/ && ./compile_and_run.sh
-> 3.    cd ./example/train_test_minist_data/ && ./compile_and_run.sh
+> 3.    cd ./example/mnist/ && ./compile_and_run.sh
