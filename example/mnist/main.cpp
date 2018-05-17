@@ -5,11 +5,16 @@
 int main()
 {
     // define bottom
-    int BS = 128,    C_in = 1,   H_in = 28,     W_in = 28;
-    int X_total_number = 60000;
+    int BS = 100;
+    int C_in = 1,   H_in = 28,     W_in = 28;
+    int Train_data_number_total = 60000;
+    int Test_data_number_total  = 10000;
+    int Test_size   = 10000;
     int num_classes = 10;
-    int total_steps = 500000;
-    double lr = 0.01;
+    int total_steps = 5000000;
+    int train_display_step_gap = 500;
+    int test_display_step_gap  = 2000;
+    double lr = 1e-4;
     int layer_num = 3;
     MD_Vec<double> bottom({BS, C_in, H_in, W_in});
     //  MD_Vec<double> bottom({BS, C_in* H_in* W_in});
@@ -36,11 +41,19 @@ int main()
     for(int i=0; i<tops.size(); print_vec(tops[i].shape, "top shape"),  i++);
 
 
-    vector<double>  X(X_total_number*C_in*H_in*W_in);
-    vector<double>  Y(X_total_number*num_classes);
-    //get_random_data_and_label(X, Y, X_total_number, C_in * H_in * W_in, num_classes);
+    vector<double>  X(Train_data_number_total*C_in*H_in*W_in);
+    vector<double>  Y(Train_data_number_total*num_classes);
     read_Mnist_Images("../../data/mnist/train-images-idx3-ubyte", X);
     read_Mnist_Labels("../../data/mnist/train-labels-idx1-ubyte", Y);
+
+    vector<double>  X_test(Test_data_number_total*C_in*H_in*W_in);
+    vector<double>  Y_test(Test_data_number_total*num_classes);
+    read_Mnist_Images("../../data/mnist/t10k-images-idx3-ubyte", X_test);
+    read_Mnist_Labels("../../data/mnist/t10k-labels-idx1-ubyte", Y_test);
+
+
+
+
     long long start_index_X = 0,  end_index_X = 0;
     long long start_index_Y = 0,  end_index_Y = 0;
     for(int step_i=0; step_i<total_steps; step_i++){
@@ -69,11 +82,11 @@ int main()
         Loss.Forward(&tops[idx-1],  &Labels, loss); idx++;
 
         double acc = compute_accuracy(&tops[2], &Labels);
-        if(step_i % 500 == 0){
+        if(step_i % train_display_step_gap == 0){
             cout<<"--------------------------"<<endl;
-            cout<<" step = "<<step_i<<endl;
-            cout<<" loss = "<<loss<<endl;
-            cout<<" acc  = "<<acc<<endl;
+            cout<<" train step = "<<step_i<<endl;
+            cout<<" train loss = "<<loss<<endl;
+            cout<<" train acc  = "<<acc<<endl;
         }
 
 
@@ -82,7 +95,53 @@ int main()
         Fc1.Backward(&tops[idx-1],  &tops[idx]);        idx --;
         Fc0.Backward(&tops[idx-1],  &tops[idx]);        idx --;
         Conv1.Backward(&bottom,     &tops[idx]);        idx --;
+
+
+
+        if(step_i % test_display_step_gap == 0){
+            // ====================================== Test phase ======================================================
+            cout<<"testing ....."<<endl;
+            int start_index_X_test = 0,     end_index_X_test = 0;
+            int start_index_Y_test = 0,     end_index_Y_test = 0;
+            double avg_acc  = 0;
+            double avg_loss = 0;
+            int   test_step = 0;
+            CHECK_equal((Test_size * num_classes) % Labels.count(), 0); 
+            while(end_index_Y_test + Labels.count() <= Test_size * num_classes){
+                //cout<<"end_index_X_test ,end_index_Y_test  = "<<end_index_X_test<<","<<end_index_Y_test<<endl;
+                start_index_X_test = end_index_X_test;
+                start_index_Y_test = end_index_Y_test;
+
+                end_index_X_test   = start_index_X_test + bottom.count();
+                end_index_Y_test   = start_index_Y_test + Labels.count();
+                
+                copy_vector_from_to<double>(X_test,  bottom.data, start_index_X_test, end_index_X_test);
+                copy_vector_from_to<double>(Y_test,  Labels.data, start_index_Y_test, end_index_Y_test);
+
+                int idx = 0;
+                Conv1.Forward(&bottom,      &tops[idx]);    idx++;
+                Fc0.Forward(&tops[idx-1],   &tops[idx]);    idx++;
+                Fc1.Forward(&tops[idx-1],   &tops[idx]);    idx++;
+                Loss.Forward(&tops[idx-1],  &Labels, loss); idx++;
+
+                avg_acc  += compute_accuracy(&tops[2], &Labels);
+                avg_loss += loss;
+                test_step += 1;
+                //cout<<"test_step = "<<test_step<<endl;
+            }
+            cout<<"===> test finished <==="<<endl;
+            cout<<endl<<"-->      test_acc  = "<<avg_acc / test_step<<endl;
+            cout<<endl<<"-->      test_loss = "<<avg_loss/ test_step<<endl;
+            // ====================================== Test phase ======================================================
+        }
+
+
     }
+
+
+
+
+
     return 0;
 }
 
