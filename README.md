@@ -2,8 +2,7 @@
 
 
 ### dependency
-> 1. git clone https://github.com/jayrambhia/Install-OpenCV && cd ./Install-OpenCV/Ubuntu/ && chmod +x * && ./opencv_latest.sh
-> 2. sudo apt-get install libopenblas-dev 
+>  bash ./install_dependency.sh
 
 ### usage
 > 1.    ./data/mnist/get_mnist.sh
