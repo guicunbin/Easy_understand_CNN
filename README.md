@@ -1,5 +1,5 @@
-# Easy_understand_CNN
-
+#   Easy_understand_CNN
+##  Easy understand CNN Framwork Implemented from scratch by using C++
 
 ### dependency
 >  bash ./install_dependency.sh
