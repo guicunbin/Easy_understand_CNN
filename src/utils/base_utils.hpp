@@ -528,52 +528,6 @@ void load_txt_to_vector_string(const char *txt_path, vector<string>& vec_str){
 
 
 
-void putText_to_image(vector<string> & texts,   cv::Mat &image){
-	//void cv::putText(  
-	//    cv::Mat& img, // 待绘制的图像  
-	//    const string& text, // 待绘制的文字  
-	//    cv::Point origin, // 文本框的左下角  
-	//    int fontFace, // 字体 (如cv::FONT_HERSHEY_PLAIN)  
-	//    double fontScale, // 尺寸因子，值越大文字越大  
-	//    cv::Scalar color, // 线条的颜色（RGB）  
-	//    int thickness = 1, // 线条宽度  
-	//    int lineType = 8, // 线型（4邻域或8邻域，默认8邻域）  
-	//    bool bottomLeftOrigin = false // true='origin at lower left'  
-	//);  
-
-	//	cv::Size cv::getTextSize(  
-    //	const string& text,  
-    //	cv::Point origin,  
-    //	int fontFace,  
-    //	double fontScale,  
-    //	int thickness,  
-    //	int* baseLine  
-	//	);  
-
-
-	int font_face = cv::FONT_HERSHEY_COMPLEX;   
-	//int font_face = cv::FONT_HERSHEY_SIMPLEX;   
-	double font_scale = 0.5;
-	int thickness = 1;
-	int baseline;
-	cv::Point origin;
-	//origin.x = image.cols / 2 - text_size.width / 2;  
-	//origin.y = image.rows / 2 + text_size.height / 2; 
-    origin.x = 20, origin.y = 20;
-
-    for(int i=0; i<texts.size(); i++){
-        string text = texts[i];
-	    cv::Size text_size = cv::getTextSize(text, font_face, font_scale, thickness, &baseline);
-	    if(image.cols <= text_size.width) {
-            cout<<text<<endl;
-            throw_error("Text_size > image_size !!! ");
-        }
-	    cv::putText(image, text, origin, font_face, font_scale, cv::Scalar(0, 0, 255), thickness, 8, 0);
-        origin.y += 20;
-    }
-}
-
-
 
 
 
@@ -683,35 +637,6 @@ vector<string> split_string(string st,  string sep){
 }
 
 
-template <typename Dtype>
-MD_Vec<Dtype> cvMat_2_vector(cv::Mat &image){
-	int nr=image.rows;
-	int nc=image.cols;
-	MD_Vec<Dtype> vec({3, nr, nc});
-	for(int i=0;i<nr;i++)
-	{
-	    for(int j=0;j<nc;j++)
-	    {
-	        //vec[0][i][j] = image.at<cv::Vec3b>(i,j)[0];
-	        //vec[1][i][j] = image.at<cv::Vec3b>(i,j)[1];
-	        //vec[2][i][j] = image.at<cv::Vec3b>(i,j)[2];
-			vec.data[0          + i*nc + j]  = image.at<cv::Vec3b>(i,j)[0];
-			vec.data[nr*nc		+ i*nc + j]  = image.at<cv::Vec3b>(i,j)[1];
-			vec.data[2*nr*nc 	+ i*nc + j]  = image.at<cv::Vec3b>(i,j)[2];
-	    }
-	}
-	return vec;
-}
-
-
-
-
-MD_Vec<int> read_image_to_vector(string image_path){
-    cv::Mat mat = cv::imread(image_path, 3);
-	MD_Vec<int> vec3d = cvMat_2_vector<int>(mat);
-    return vec3d;
-}
-
 
 
 
@@ -799,7 +724,7 @@ vector<Dtype>  get_random_Labels(vector<int> shape){
     vector<Dtype> Labels(shape[0]*shape[1], 0);
 
 
-    Dtype *p_Labels = &Labels[0], * p_Labels_end = &Labels[shape[0]*shape[1]] + 1;
+    Dtype *p_Labels = &Labels[0], * p_Labels_end = &Labels[shape[0]*shape[1] - 1] + 1;
     while(p_Labels < p_Labels_end){
         //cout<<p_Labels<<","<<p_Labels_end<<endl;
         int groud_truth = rand() % shape[1];

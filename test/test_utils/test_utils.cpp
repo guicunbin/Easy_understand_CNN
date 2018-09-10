@@ -218,22 +218,6 @@ void test_any2str(){
 }
 
 
-void test_putText_to_image(){
-    //创建空白图用于绘制文字  
-	cv::Mat image = cv::Mat::zeros(cv::Size(640, 480), CV_8UC3);  
-	//设置蓝色背景  
-	image.setTo(cv::Scalar(100, 0, 0));  
-	//设置绘制文本的相关参数  
-	vector<string> texts = {"Hello World!", "YES", "OK"};  
-	//显示绘制解果  
-    putText_to_image(texts,image);
-	cv::imshow("image", image);
-	cv::waitKey(1000);
-    cv::destroyAllWindows();
-}
-
-
-
 
 void test_split_string(){
     string st = "abc#hello#ui#hello#mkl#00#helll#1";
@@ -626,7 +610,6 @@ int main(){
     test_compute_conv2d_by_mat_mul();
     test_transpose_matrix();
     test_split_string();
-    test_putText_to_image();
     test_any2str();
     test_load_txt_to_vector_string();
     test_mat_mul();

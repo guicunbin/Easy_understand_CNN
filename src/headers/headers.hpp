@@ -11,8 +11,6 @@
 #include<string>
 #include<math.h>
 #include<sstream>
-#include<opencv2/core/core.hpp>
-#include<opencv2/highgui/highgui.hpp>
 #include<assert.h>
 #include<typeinfo>
 //#include<cblas.h>
